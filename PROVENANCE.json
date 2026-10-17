@@ -1,0 +1,18 @@
+{
+ "img/hero.jpg": {
+  "tool": "higgsfield",
+  "prompt": "campy haunted living room with a glowing CRT TV (job 3fad6f7e) gpt_image_2_5"
+ },
+ "snd/click.mp3": {
+  "tool": "elevenlabs",
+  "prompt": "CRT channel click with static (flow 1w3ENQJcjo9rQwYbvlhj)"
+ },
+ "snd/sting.mp3": {
+  "tool": "elevenlabs",
+  "prompt": "campy horror sting with cackle (flow 1w3ENQJcjo9rQwYbvlhj)"
+ },
+ "snd/bed.mp3": {
+  "tool": "elevenlabs",
+  "prompt": "retro horror synth theme, eleven_music_v2_5, crossfade loop (flow 1w3ENQJcjo9rQwYbvlhj)"
+ }
+}

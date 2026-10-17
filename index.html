@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- STYLE: Haunted VHS broadcast (CRT phosphor green and grape purple, Anton meme captions, VT323 on-screen display) | WHY: Mason's two great loves are memes and horror, with HorrorCon on his and his twin's birthday weekend, so the gift is a haunted TV that only plays horror memes, ending on the one channel that is pure love | ALT: A slasher poster generator, rejected because flipping channels is funnier and closer to a meme feed -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Channel 13</title>
+<meta name="description" content="A haunted meme TV for Mason.">
+<meta property="og:title" content="Channel 13, for Mason">
+<meta property="og:image" content="https://gordonusc.github.io/gift-mason/img/hero.jpg">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=VT323&family=Rubik:wght@500;700&display=swap">
+<style>
+:root{--crt:#7dff9b;--grape:#8b3dff;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#07040d;color:#fff;font:16px/1.4 Rubik,system-ui,sans-serif;overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.stage{position:absolute;top:0;bottom:0;left:50%;transform:translateX(-50%);width:min(100vw,calc(100svh*9/16));overflow:hidden}
+.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.7)}
+.top{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 16px);text-align:center;padding:0 16px;text-shadow:0 0 14px var(--grape),0 2px 10px #000}
+.top small{font:400 18px VT323,monospace;letter-spacing:.2em;color:var(--crt)}
+.top h1{font:400 clamp(36px,12vw,56px)/1 Anton,Impact,sans-serif;margin:2px 0 6px;letter-spacing:.02em}
+.top p{margin:0 auto;max-width:28ch;font-size:14.5px}
+.screen{position:absolute;left:9%;right:9%;top:33%;aspect-ratio:4/3;max-width:82%;border-radius:22px/18px;overflow:hidden;background:#0b120d;box-shadow:0 0 0 6px #1d1410,0 0 40px #7dff9b55,inset 0 0 60px #000}
+.screen::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,#0000 0 2px,#0006 2px 3px);pointer-events:none}
+.osd{position:absolute;right:10px;top:6px;font:400 26px VT323,monospace;color:var(--crt);text-shadow:0 0 8px var(--crt);z-index:2}
+.cap{position:absolute;left:8px;right:8px;font:400 clamp(17px,5.4vw,24px)/1.05 Anton,Impact,sans-serif;text-transform:uppercase;text-align:center;color:#fff;-webkit-text-stroke:1.5px #000;paint-order:stroke fill;text-shadow:0 2px 0 #000;z-index:2}
+.cap.t{top:30px}.cap.b{bottom:10px}
+.glow{position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,#2a6b3a,#08140b 70%);transition:background .3s}
+.static{position:absolute;inset:0;opacity:0;z-index:3;background:repeating-linear-gradient(90deg,#fff3 0 1px,#0000 1px 3px),repeating-linear-gradient(0deg,#ffffff22 0 2px,#00000055 2px 4px);transition:opacity .08s}
+.static.on{opacity:1;animation:jit .08s steps(2) infinite}
+@keyframes jit{50%{transform:translate(2px,-1px)}}
+.remote{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 44px);display:flex;gap:12px;align-items:center}
+.btn{height:56px;padding:0 22px;border-radius:28px;border:3px solid var(--crt);background:#120a1f;color:var(--crt);font:400 24px VT323,monospace;letter-spacing:.1em;cursor:pointer;box-shadow:0 0 18px #7dff9b66}
+.btn:active{transform:scale(.95)}
+.foot{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);text-align:center;font-size:11px;opacity:.75;pointer-events:none}
+.fin .screen{box-shadow:0 0 0 6px #1d1410,0 0 60px #ff6bd5aa,inset 0 0 60px #000}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <img class="bg" src="img/hero.jpg" alt="A campy haunted living room at night with a glowing old CRT television, candles and cobwebs">
+  <div class="top"><small>FOR MASON</small><h1>CHANNEL 13</h1><p>A haunted TV that only plays horror memes. Change the channel. Sound on, if you dare.</p></div>
+  <div class="screen" id="screen"><div class="glow" id="glow"></div><div class="osd" id="osd">CH 01</div><div class="cap t" id="ct">it's just the wind</div><div class="cap b" id="cb">the wind: knows my name</div><div class="static" id="st"></div></div>
+  <div class="remote"><button class="btn" id="ch" type="button">CHANNEL +</button></div>
+  <div class="foot">made by Darby, Gordon's AI assistant, with love from Gordon</div>
+</div>
+<script>
+// ElevenLabs sound design: CRT channel click with static, campy horror sting, retro horror synth bed. Code only mixes.
+const SND=['click','sting','bed'];
+let ac=null, master=null, bufs={}, bed=null;
+function audio(){ if(!ac){ try{ ac=new (window.AudioContext||window.webkitAudioContext)(); master=ac.createGain(); master.gain.value=.9; master.connect(ac.destination); SND.forEach(load);}catch(e){} } if(ac&&ac.state==='suspended') ac.resume(); return ac; }
+async function load(n){ if(bufs[n]) return bufs[n]; try{ const r=await fetch('snd/'+n+'.mp3'); const a=await r.arrayBuffer(); bufs[n]=await new Promise((ok,no)=>ac.decodeAudioData(a,ok,no)); }catch(e){} return bufs[n]; }
+async function play(n,vol=1,loop=false){ if(!audio()) return null; const b=await load(n); if(!b) return null; const s=ac.createBufferSource(), g=ac.createGain(); s.buffer=b; s.loop=loop; g.gain.value=vol; s.connect(g).connect(master); s.start(); return {s,g}; }
+const CH=[
+ ['it\'s just the wind','the wind: knows my name','#2a6b3a'],
+ ['horror movie: they split up','me at the screen: group chat. now.','#3b2a6b'],
+ ['the doll turns its head','me: anyway, more popcorn','#6b2a3a'],
+ ['me at 3am: i should sleep','also me: one more found footage','#2a4f6b'],
+ ['birthday brunch with my twin','then straight to horrorcon. iconic.','#6b4f2a'],
+ ['channel 13: your best friend','scariest thing here: how much he loves you','#7a1f6b']
+];
+let i=0;
+document.getElementById('ch').addEventListener('click',async()=>{ audio(); if(!bed) bed=await play('bed',.32,true); const st=document.getElementById('st'); st.classList.add('on'); play('click',.85);
+  setTimeout(()=>{ i=Math.min(i+1,CH.length-1); const [t,b,g]=CH[i]; document.getElementById('ct').textContent=t; document.getElementById('cb').textContent=b; document.getElementById('osd').textContent=i===CH.length-1?'CH 13':'CH 0'+(i+1);
+    document.getElementById('glow').style.background=`radial-gradient(circle at 50% 45%,${g},#08140b 72%)`; st.classList.remove('on');
+    if(i===CH.length-1){ play('sting',.85); document.getElementById('stage').classList.add('fin'); document.getElementById('ch').textContent='STAY TUNED'; } else if(i%2===0) play('sting',.5); },260); });
+</script>
+</body>
+</html>
